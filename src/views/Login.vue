@@ -2,21 +2,27 @@
 import { ref } from "vue";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase";
+import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
-const username = ref("colin@test.firebase.com");
+const email = ref("colin@test.firebase.com");
 const password = ref("rootroot");
-const login_status = ref("")
+const login_status = ref("");
+const error = ref("");
+const store = useStore();
+const router = useRouter();
 
-function login() {
-    login_status.value = "";
-    signInWithEmailAndPassword(auth, username.value, password.value)
-        .then((userCredential) => {
-            login_status.value = "success";
-        })
-        .catch((error) => {
-            login_status.value = "failed";
+const Login = async () => {
+    try {
+        await store.dispatch("logIn", {
+            email: email.value,
+            password: password.value,
         });
-}
+        router.push("/");
+    } catch (err) {
+        error.value = err.message;
+    }
+};
 </script>
 <template>
     <section class="h-screen w-screen flex ">
@@ -28,16 +34,25 @@ function login() {
                         class="w-full"
                     />
                 </div>
+                {{ error }}
                 <div class="md:w-8/12 lg:w-5/12 lg:ml-20">
-                    <div v-if="login_status == 'success'" class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800" role="alert">
+                    <div
+                        v-if="login_status == 'success'"
+                        class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800"
+                        role="alert"
+                    >
                         <span class="font-medium">Success Login !</span>
                     </div>
-                    <div v-if="login_status == 'failed'" class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800" role="alert">
-                        <span class="font-medium">Failed Login !</span>
+                    <div
+                        v-if="login_status == 'failed'"
+                        class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg dark:bg-red-200 dark:text-red-800"
+                        role="alert"
+                    >
+                        <span class="font-medium">{{ error }}</span>
                     </div>
                     <div class="mb-6">
                         <input
-                            v-model="username"
+                            v-model="email"
                             type="text"
                             class="form-control block w-full px-4 py-2 text-xl font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none"
                             placeholder="Email address"
@@ -53,7 +68,7 @@ function login() {
                     </div>
                     <button
                         type="button"
-                        @click="login"
+                        @click="Login"
                         class="inline-block px-7 py-3 bg-gray-700 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full"
                         data-mdb-ripple="true"
                         data-mdb-ripple-color="light"
