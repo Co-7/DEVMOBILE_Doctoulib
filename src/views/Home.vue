@@ -15,6 +15,7 @@ import { FilterMatchMode, FilterOperator } from "primevue/api";
 const praticiens = ref([]);
 const visibleRight = ref(false);
 const choose_date = ref("");
+const send_rdv = ref("");
 const title = ref("");
 const current_praticien = ref("");
 const filters = ref({
@@ -57,11 +58,22 @@ function send() {
         date: choose_date.value,
         patient: current_praticien.value,
     };
-    addDoc(collection(db, "appointments"), docData);
+    addDoc(collection(db, "appointments"), docData).then(() => {
+        send_rdv.value = "success"
+        visibleRight.value = false;
+        choose_date.value = "";
+    });
 }
 </script>
 <template>
-    <div class="flex justify-center py-10">
+    <div class="flex flex-col justify-center p-10">
+        <div
+            v-if="send_rdv == 'success'"
+            class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg dark:bg-green-200 dark:text-green-800"
+            role="alert"
+        >
+            <span class="font-medium">Le rendez-vous a bien été pris</span>
+        </div>
         <DataTable
             v-model:filters="filters"
             filterDisplay="menu"
@@ -77,7 +89,7 @@ function send() {
                         <i class="pi pi-search" />
                         <InputText
                             v-model="filters['global'].value"
-                            placeholder="Keyword Search"
+                            placeholder="Rechercher"
                         />
                     </span>
                 </div>

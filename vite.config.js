@@ -20,7 +20,7 @@ export default defineConfig({
         short_name: 'Doctou',
         description: 'Doctoulib pour la medecine',
         theme_color: '#374151',
-        "background_color": "#374151",
+        background_color: "#374151",
         icons: [{
             src: 'vite.svg',
             sizes: '192x192',
